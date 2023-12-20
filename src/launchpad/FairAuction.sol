@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "../interfaces/tokens/IWETH.sol";
+import "../interfaces/tokens/IWEOS.sol";
 
 contract FairAuction is Ownable, ReentrancyGuard {
   using SafeMath for uint256;
@@ -48,7 +48,7 @@ contract FairAuction is Ownable, ReentrancyGuard {
   bool public isPaused;
 
   address public constant OPERATOR = 0x9A5ad9bdC4FF8d154c9e14173c993d68d02c22A7;
-  address public constant weth = 0x82aF49447D8a07e3bd95BD0d56f35241523fBab1;
+  address public constant weos = 0x6cCC5AD199bF1C64b50f6E7DD530d71402402EB6;
 
   constructor
   (
@@ -203,9 +203,9 @@ contract FairAuction is Ownable, ReentrancyGuard {
   /****************************************************************/
 
   function buyETH() external isSaleActive isNotPaused nonReentrant payable {
-    require(address(SALE_TOKEN) == weth, "non ETH sale");
+    require(address(SALE_TOKEN) == weos, "non ETH sale");
     uint256 amount = msg.value;
-    IWETH(weth).deposit{value: amount}();
+    IWEOS(weos).deposit{value: amount}();
     _buy(amount);
   }
 

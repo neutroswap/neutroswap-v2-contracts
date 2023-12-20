@@ -22,7 +22,7 @@ interface IXNeutroToken is IERC20 {
     external
     view
     returns (
-      uint256 esperAmount,
+      uint256 neutroAmount,
       uint256 xNeutroAmount,
       uint256 endTime,
       address dividendsContract,

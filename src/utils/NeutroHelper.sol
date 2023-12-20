@@ -20,7 +20,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract NeutroHelper is Ownable {
   bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
 
-  address public immutable WETH;
+  address public immutable WEOS;
   address public immutable NEUTRO;
   IXNeutroToken public xNeutro;
   IDividends public dividends;
@@ -43,16 +43,17 @@ contract NeutroHelper is Ownable {
   struct PendingRewardsUserInDividends {
     address token;
     uint256 amount;
+    uint256 amountInUsd;
   }
 
   constructor(
-    address _weth,
+    address _weos,
     address _neutro,
     address _xNeutro,
     address _usdt,
     address _usdc
   ) {
-    WETH = _weth;
+    WEOS = _weos;
     stableTokens.push(_usdt);
     stableTokens.push(_usdc);
     NEUTRO = _neutro;
@@ -83,8 +84,8 @@ contract NeutroHelper is Ownable {
     for (uint256 i = 0; i < l; i++) {
       address _token = dividends.distributedToken(i);
       (uint256 currentDistributionAmount, , uint256 pendingAmount, , , , , ) = dividends.dividendsInfo(_token);
-      uint256 currentDistributionAmountInUsd = _fetchTotalValueOfLiquidity(_token);
-      uint256 pendingDistributionAmountInUsd = _fetchTotalValueOfLiquidity(_token);
+      uint256 currentDistributionAmountInUsd = FullMath.mulDiv(currentDistributionAmount, _fetchTotalValueOfLiquidity(_token), 10**18);
+      uint256 pendingDistributionAmountInUsd = FullMath.mulDiv(pendingAmount,  _fetchTotalValueOfLiquidity(_token), 10**18);
       _allDividendsRewards[i] = DividendsRewards(_token, currentDistributionAmount, pendingAmount, currentDistributionAmountInUsd, pendingDistributionAmountInUsd);
     }
     return _allDividendsRewards;
@@ -118,7 +119,8 @@ contract NeutroHelper is Ownable {
     for (uint256 i = 0; i < l; i++) {
       address _token = dividends.distributedToken(i);
       uint256 _pendingRewards = dividends.pendingDividendsAmount(_token, _user);
-      _allPendingRewards[i] = PendingRewardsUserInDividends(_token, _pendingRewards);
+      uint256 _pendingRewardsAmountInUsd = FullMath.mulDiv(_pendingRewards, _fetchTotalValueOfLiquidity(_token), 10**18);
+      _allPendingRewards[i] = PendingRewardsUserInDividends(_token, _pendingRewards, _pendingRewardsAmountInUsd);
     }
     return _allPendingRewards;
   }
@@ -217,7 +219,7 @@ contract NeutroHelper is Ownable {
     address token0 = INeutroPair(lpToken).token0();
     address token1 = INeutroPair(lpToken).token1();
 
-    (uint256 reserve0, uint256 reserve1, , ) = INeutroPair(lpToken).getReserves();
+    (uint256 reserve0, uint256 reserve1, ) = INeutroPair(lpToken).getReserves();
 
     uint256 _decimals0 = safeDecimals(token0);
     uint256 _decimals1 = safeDecimals(token1);
@@ -243,7 +245,7 @@ contract NeutroHelper is Ownable {
     if (_pair == address(0x00)) {
       _pair = INeutroFactory(amm_factory).getPair(token, stableTokens[1]);
         if (_pair == address(0x00)) {
-          return _getUsdValueUsingWethPair(token);
+          return _getUsdValueUsingWeosPair(token);
         } else {
           return _getUsdValueUsingUsdPair(token, stableTokens[1]);
         }
@@ -252,17 +254,17 @@ contract NeutroHelper is Ownable {
     }
   }
 
-  function _getUsdValueUsingWethPair(address token) internal view returns (uint256 price) {
+  function _getUsdValueUsingWeosPair(address token) internal view returns (uint256 price) {
     uint256 TO_DECIMAL_18 = 10 ** 12;
     uint256 one_unit = 10**safeDecimals(token);
 
-    if (token == WETH) {
-      return _getWETHPrice();
+    if (token == WEOS) {
+      return _getWEOSPrice();
     }
 
     address[] memory _path = new address[](3);
     _path[0] = token;
-    _path[1] = WETH;
+    _path[1] = WEOS;
     _path[2] = stableTokens[0];
 
     try INeutroRouter(router).getAmountsOut(one_unit, _path) returns (uint256[] memory result) {
@@ -291,11 +293,11 @@ contract NeutroHelper is Ownable {
     }
   }
 
-  function _getWETHPrice() internal view returns (uint256 price) {
+  function _getWEOSPrice() internal view returns (uint256 price) {
     uint256 TO_DECIMAL_18 = 10 ** 12;
     uint256 one_unit = 10**18;
     address[] memory _path = new address[](2);
-    _path[0] = WETH;
+    _path[0] = WEOS;
     _path[1] = stableTokens[0];
     uint256[] memory result = INeutroRouter(router).getAmountsOut(one_unit, _path);
     price = result[1] * TO_DECIMAL_18;

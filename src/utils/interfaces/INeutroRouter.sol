@@ -52,7 +52,5 @@ interface INeutroRouter is IUniswapV2Router01 {
     uint256 deadline
   ) external;
 
-  function getPair(address token1, address token2) external view returns (address);
-
   function getAmountsOut(uint256 amountIn, address[] calldata path) external view returns (uint256[] memory amounts);
 }

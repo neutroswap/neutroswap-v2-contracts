@@ -8,6 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "./interfaces/INeutroRouter.sol";
 import "./interfaces/INFTPool.sol";
+import "./interfaces/INeutroFactory.sol";
 
 contract PositionHelper is ReentrancyGuard {
   using Address for address;
@@ -16,18 +17,20 @@ contract PositionHelper is ReentrancyGuard {
 
   bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
   INeutroRouter public immutable router;
-  address public immutable weth;
+  INeutroFactory public immutable factory;
+  address public immutable weos;
 
   uint256 expectedTokenId;
   address expectedNftPool;
 
-  constructor(address router_, address weth_) {
+  constructor(address router_, address factory_, address weos_) {
     router = INeutroRouter(router_);
-    weth = weth_;
+    factory = INeutroFactory(factory_);
+    weos = weos_;
   }
 
   receive() external payable {
-    assert(msg.sender == weth); // only accept ETH via fallback from the WETH contract
+    assert(msg.sender == weos); // only accept ETH via fallback from the WEOS contract
   }
 
   function onERC721Received(
@@ -52,7 +55,7 @@ contract PositionHelper is ReentrancyGuard {
     INFTPool nftPool,
     uint256 lockDuration
   ) external nonReentrant {
-    address lp = router.getPair(tokenA, tokenB);
+    address lp = factory.getPair(tokenA, tokenB);
 
     {
       (address nftUnderlyingAsset, , , , , , , ) = nftPool.getPoolInfo();
@@ -98,7 +101,7 @@ contract PositionHelper is ReentrancyGuard {
     INFTPool nftPool,
     uint256 lockDuration
   ) external payable nonReentrant {
-    address lp = router.getPair(token, weth);
+    address lp = factory.getPair(token, weos);
 
     (address nftUnderlyingAsset, , , , , , , ) = nftPool.getPoolInfo();
     require(lp == nftUnderlyingAsset, "invalid nftPool");

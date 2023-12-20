@@ -2,7 +2,7 @@
 pragma solidity =0.7.6;
 
 interface INeutroMaster {
-  function esperToken() external view returns (address);
+  function neutroToken() external view returns (address);
 
   function yieldBooster() external view returns (address);
 

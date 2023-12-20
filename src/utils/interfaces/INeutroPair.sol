@@ -12,7 +12,6 @@ interface INeutroPair {
     returns (
       uint112 _reserve0,
       uint112 _reserve1,
-      uint16 _token0FeePercent,
-      uint16 _token1FeePercent
+      uint32 _blockTimestampLast
     );
 }

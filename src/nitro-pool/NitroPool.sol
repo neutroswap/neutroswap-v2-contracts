@@ -58,7 +58,7 @@ contract NitroPool is ReentrancyGuard, Ownable, INFTHandler {
     bytes4 private constant _ERC721_RECEIVED = 0x150b7a02;
 
     INitroPoolFactory public factory; // NitroPoolFactory address
-    INeutroToken public esperToken; // NEUTROToken contract
+    INeutroToken public neutroToken; // NEUTROToken contract
     IXNeutroToken public xNeutroToken; // xNEUTROToken contract
     INFTPool public nftPool; // NFTPool contract
 
@@ -84,10 +84,10 @@ contract NitroPool is ReentrancyGuard, Ownable, INFTHandler {
     Settings public settings; // global and requirements settings
 
     constructor(
-        address esperToken_, address xNeutroToken_, address owner_, address nftPool_,
+        address neutroToken_, address xNeutroToken_, address owner_, address nftPool_,
         address rewardsToken1_, address rewardsToken2_, Settings memory settings_
     ) {
-        require(esperToken_ != address(0) && xNeutroToken_ != address(0) && owner_ != address(0)
+        require(neutroToken_ != address(0) && xNeutroToken_ != address(0) && owner_ != address(0)
             && nftPool_ != address(0) && rewardsToken1_ != address(0), "zero address");
         require(_currentBlockTimestamp() < settings_.startTime, "invalid startTime");
         require(settings_.startTime < settings_.endTime, "invalid endTime");
@@ -97,7 +97,7 @@ contract NitroPool is ReentrancyGuard, Ownable, INFTHandler {
 
         factory = INitroPoolFactory(msg.sender);
 
-        esperToken = INeutroToken(esperToken_);
+        neutroToken = INeutroToken(neutroToken_);
         xNeutroToken = IXNeutroToken(xNeutroToken_);
         nftPool = INFTPool(nftPool_);
         creationTime = _currentBlockTimestamp();
@@ -336,7 +336,7 @@ contract NitroPool is ReentrancyGuard, Ownable, INFTHandler {
      * "to" can be set to token's previous owner
      * "to" can be set to this address only if this contract is allowed to transfer xNEUTRO
      */
-    function onNFTHarvest(address operator, address to, uint256 tokenId, uint256 esperAmount, uint256 xNeutroAmount) external override isValidNFTPool(msg.sender) returns (bool) {
+    function onNFTHarvest(address operator, address to, uint256 tokenId, uint256 neutroAmount, uint256 xNeutroAmount) external override isValidNFTPool(msg.sender) returns (bool) {
         address owner = tokenIdOwner[tokenId];
         require(operator == owner, "not allowed");
 
@@ -345,7 +345,7 @@ contract NitroPool is ReentrancyGuard, Ownable, INFTHandler {
 
         // redirect rewards to position's previous owner
         if (to == address(this)) {
-            esperToken.safeTransfer(owner, esperAmount);
+            neutroToken.safeTransfer(owner, neutroAmount);
             xNeutroToken.safeTransfer(owner, xNeutroAmount);
         }
 
