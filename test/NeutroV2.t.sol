@@ -149,22 +149,22 @@ contract NeutroV2Test is StdCheats, Test {
 
         uint256 emissionRate = _master.emissionRate();
 
-        uint256 balanceEsperBeforeEmitAllocation = _neutroToken.balanceOf(address(_master));
-        uint256 balanceTreasuryEsperBeforeEmitAllocation = _neutroToken.balanceOf(TREASURY);
-        assertEq(balanceEsperBeforeEmitAllocation, 0);
-        assertEq(balanceTreasuryEsperBeforeEmitAllocation, 0);
+        uint256 balanceNeutroBeforeEmitAllocation = _neutroToken.balanceOf(address(_master));
+        uint256 balanceTreasuryNeutroBeforeEmitAllocation = _neutroToken.balanceOf(TREASURY);
+        assertEq(balanceNeutroBeforeEmitAllocation, 0);
+        assertEq(balanceTreasuryNeutroBeforeEmitAllocation, 0);
 
         vm.warp(_master.lastEmissionTime() + 1 days);
         _master.emitAllocations();
 
-        uint256 balanceEsperAfterEmitAllocation = _neutroToken.balanceOf(address(_master));
-        uint256 balanceTreasuryEsperAfterEmitAllocation = _neutroToken.balanceOf(TREASURY);
+        uint256 balanceNeutroAfterEmitAllocation = _neutroToken.balanceOf(address(_master));
+        uint256 balanceTreasuryNeutroAfterEmitAllocation = _neutroToken.balanceOf(TREASURY);
         uint256 tokenAmountCreatedForFarming = emissionRate * 1 days * _master.farmingAllocation() / 100;
         uint256 tokenAmountCreatedForTreasury = emissionRate * 1 days * _master.treasuryAllocation() / 100;
         uint256 totalTokenAmountCreated = (emissionRate * 1 days);
 
-        assertEq(balanceEsperAfterEmitAllocation, tokenAmountCreatedForFarming);
-        assertEq(balanceTreasuryEsperAfterEmitAllocation, tokenAmountCreatedForTreasury);
+        assertEq(balanceNeutroAfterEmitAllocation, tokenAmountCreatedForFarming);
+        assertEq(balanceTreasuryNeutroAfterEmitAllocation, tokenAmountCreatedForTreasury);
         assertEq(_neutroToken.totalSupply(), totalTokenAmountCreated + FORKED_NEUTRO_SUPPLY);
 
         uint256 newEmissionRate = 0.001 ether;
@@ -179,11 +179,11 @@ contract NeutroV2Test is StdCheats, Test {
         uint256 updatedTokenAmountCreatedForFarming = newEmissionRate * 1 days * _master.farmingAllocation() / 100;
         uint256 updatedTokenAmountCreatedForTreasury = newEmissionRate * 1 days * _master.treasuryAllocation() / 100;
         uint256 updatedTotalTokenAmountCreated = (newEmissionRate * 1 days);
-        uint256 balanceEsperAfterUpdateAllocation = _neutroToken.balanceOf(address(_master));
-        uint256 balanceTreasuryEsperAfterUpdateAllocation = _neutroToken.balanceOf(TREASURY);
+        uint256 balanceNeutroAfterUpdateAllocation = _neutroToken.balanceOf(address(_master));
+        uint256 balanceTreasuryNeutroAfterUpdateAllocation = _neutroToken.balanceOf(TREASURY);
 
-        assertEq(balanceEsperAfterUpdateAllocation, balanceEsperAfterEmitAllocation + updatedTokenAmountCreatedForFarming);
-        assertEq(balanceTreasuryEsperAfterUpdateAllocation, balanceTreasuryEsperAfterEmitAllocation + updatedTokenAmountCreatedForTreasury);
+        assertEq(balanceNeutroAfterUpdateAllocation, balanceNeutroAfterEmitAllocation + updatedTokenAmountCreatedForFarming);
+        assertEq(balanceTreasuryNeutroAfterUpdateAllocation, balanceTreasuryNeutroAfterEmitAllocation + updatedTokenAmountCreatedForTreasury);
         assertEq(_neutroToken.totalSupply(), totalTokenAmountCreated + updatedTotalTokenAmountCreated + FORKED_NEUTRO_SUPPLY);
     }
 

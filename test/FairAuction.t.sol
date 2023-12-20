@@ -106,11 +106,11 @@ contract FairAuctionTest is StdCheats,Test {
     _buyToken(alice, buyAmountByAlice);
 
     vm.warp(startTime);
-    // Revert because the contract didnt have any esper
+    // Revert because the contract didnt have any neutro
     vm.expectRevert("isActive: sale not filled");
     _buyToken(alice, buyAmountByAlice);
     
-    // Transfer esper to the contract so can distribute token
+    // Transfer neutro to the contract so can distribute token
     token1.transfer(address(fairAuction), 15_000 ether);
     xToken1.transfer(address(fairAuction), 15_000 ether);
 
@@ -192,7 +192,7 @@ contract FairAuctionTest is StdCheats,Test {
 
   function testSetWhitelistAndBuyWithClaim() public {
     
-    // Transfer esper to the contract so can distribute token
+    // Transfer neutro to the contract so can distribute token
     token1.transfer(address(fairAuction), 15_000 ether);
     xToken1.transfer(address(fairAuction), 15_000 ether);
 
