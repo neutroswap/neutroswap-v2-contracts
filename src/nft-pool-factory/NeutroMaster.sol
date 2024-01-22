@@ -36,7 +36,7 @@ contract NeutroMaster is Ownable, INeutroMaster {
   EnumerableSet.AddressSet private _pools; // All existing pool addresses
   EnumerableSet.AddressSet private _activePools; // Only contains pool addresses w/ allocPoints > 0
 
-  uint256 public constant MAX_EMISSION_RATE = 0.01 ether;
+  uint256 public constant MAX_EMISSION_RATE = 0.1 ether;
   uint256 public immutable emissionStartTime; // The time at which emission starts
   uint256 public emissionRate; // $NEUTRO created per sec
   uint256 public lastEmissionTime;
