@@ -15,7 +15,7 @@ import "./interfaces/INFTPool.sol";
 import "./interfaces/INitroPool.sol";
 import "./interfaces/INitroPoolFactory.sol";
 import "./FullMath.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract NeutroHelper is Ownable {
   bytes4 private constant SIG_DECIMALS = 0x313ce567; // decimals()
@@ -79,13 +79,19 @@ contract NeutroHelper is Ownable {
   }
 
   function dividendsDistributedTokensRewards() public view returns (DividendsRewards[] memory) {
+    uint256 TO_DECIMAL_18 = 10 ** 12;
     uint256 l = dividends.distributedTokensLength();
     DividendsRewards[] memory _allDividendsRewards = new DividendsRewards[](l);
     for (uint256 i = 0; i < l; i++) {
       address _token = dividends.distributedToken(i);
+      uint256 decimalDistributedToken = safeDecimals(_token);
       (uint256 currentDistributionAmount, , uint256 pendingAmount, , , , , ) = dividends.dividendsInfo(_token);
-      uint256 currentDistributionAmountInUsd = FullMath.mulDiv(currentDistributionAmount, _fetchTotalValueOfLiquidity(_token), 10**18);
-      uint256 pendingDistributionAmountInUsd = FullMath.mulDiv(pendingAmount,  _fetchTotalValueOfLiquidity(_token), 10**18);
+      if(decimalDistributedToken != 18){
+        currentDistributionAmount = currentDistributionAmount * TO_DECIMAL_18;
+        pendingAmount = pendingAmount * TO_DECIMAL_18;
+      }
+      uint256 currentDistributionAmountInUsd = FullMath.mulDiv(currentDistributionAmount, _getTokenPrice(_token), 10**18);
+      uint256 pendingDistributionAmountInUsd = FullMath.mulDiv(pendingAmount,  _getTokenPrice(_token), 10**18);
       _allDividendsRewards[i] = DividendsRewards(_token, currentDistributionAmount, pendingAmount, currentDistributionAmountInUsd, pendingDistributionAmountInUsd);
     }
     return _allDividendsRewards;
@@ -114,12 +120,17 @@ contract NeutroHelper is Ownable {
     view
     returns (PendingRewardsUserInDividends[] memory)
   {
+    uint256 TO_DECIMAL_18 = 10 ** 12;
     uint256 l = dividends.distributedTokensLength();
     PendingRewardsUserInDividends[] memory _allPendingRewards = new PendingRewardsUserInDividends[](l);
     for (uint256 i = 0; i < l; i++) {
       address _token = dividends.distributedToken(i);
+      uint256 decimalDistributedToken = safeDecimals(_token);
       uint256 _pendingRewards = dividends.pendingDividendsAmount(_token, _user);
-      uint256 _pendingRewardsAmountInUsd = FullMath.mulDiv(_pendingRewards, _fetchTotalValueOfLiquidity(_token), 10**18);
+      if(decimalDistributedToken != 18){
+       _pendingRewards = _pendingRewards * TO_DECIMAL_18;
+      }
+      uint256 _pendingRewardsAmountInUsd = FullMath.mulDiv(_pendingRewards, _getTokenPrice(_token), 10**18);
       _allPendingRewards[i] = PendingRewardsUserInDividends(_token, _pendingRewards, _pendingRewardsAmountInUsd);
     }
     return _allPendingRewards;
@@ -133,18 +144,31 @@ contract NeutroHelper is Ownable {
     return IPlugin(_plugin).totalAllocation();
   }
 
+  function nftPoolTvl(address[] memory _nftPools) external view returns (uint256) {
+    uint256 tvl = 0;
+    for (uint256 i = 0; i < _nftPools.length; i++) {
+      (address lpToken, , , , , uint256 totalLpStaked, ,) =  INFTPool(_nftPools[i]).getPoolInfo();
+      uint256 totalStakedInDollar = FullMath.mulDiv(_getTokenPrice(lpToken), totalLpStaked , 10**18);
+      tvl = tvl + totalStakedInDollar;
+    } 
+    return tvl;
+  }
+  
   // Farming APR, returns in decimals 18
   function nftPoolApr(address _nftPool) external view returns (uint256) {
     (, , , , uint256 poolEmissionRate) = INeutroMaster(master).getPoolInfo(_nftPool);
     uint256 neutroPrice = _getNEUTROPrice();
     (address lpToken, , , , , uint256 totalLpStaked, ,) =  INFTPool(_nftPool).getPoolInfo();
-    uint256 totalStakedInDollar = FullMath.mulDiv(_fetchTotalValueOfLiquidity(lpToken), totalLpStaked , 10**18);
+    uint256 totalStakedInDollar = FullMath.mulDiv(_getTokenPrice(lpToken), totalLpStaked , 10**18);
     uint256 apr = FullMath.mulDiv(poolEmissionRate * 365 days * neutroPrice, 1, totalStakedInDollar) * 100; 
     return apr;
   }
 
   // Nitro APR, returns in decimals 18
   function nitroPoolApr(address _nitroPool) public view returns (uint256, uint256) {
+    if(nitroPoolFactory == address(0x00)){
+        return (0,0);
+    }
     uint256 TO_DECIMAL_18 = 10**12;
 
     (address rewardsToken1,,,) = INitroPool(_nitroPool).rewardsToken1();
@@ -164,7 +188,7 @@ contract NeutroHelper is Ownable {
     uint256 neutroPrice = _getNEUTROPrice();
     address _nftPool = INitroPool(_nitroPool).nftPool();
     (address lpToken, , , , , , ,) =  INFTPool(_nftPool).getPoolInfo();
-    uint256 _lpPrice = _fetchTotalValueOfLiquidity(lpToken);
+    uint256 _lpPrice = _getTokenPrice(lpToken);
 
     uint256 totalDepositedInNitroPool = INitroPool(_nitroPool).totalDepositAmount();
 
@@ -180,6 +204,9 @@ contract NeutroHelper is Ownable {
 
   // nitroPoolAprSpecificTOkenId -> if !staked return, 0
   function nitroPoolAprByNftPoolWithSpecificTokenId(address _nftPool, uint256 _tokenId) external view returns (uint256, uint256) {
+      if(nitroPoolFactory == address(0x00)){
+        return (0,0);
+      }
       uint256 len = INitroPoolFactory(nitroPoolFactory).nftPoolPublishedNitroPoolsLength(_nftPool);
       address _ownerSpNFT = IERC721(_nftPool).ownerOf(_tokenId);
 
@@ -206,16 +233,41 @@ contract NeutroHelper is Ownable {
     uint256 lockMultiplier = INFTPool(_nftPool).getMultiplierByLockDuration(lockDuration);
     return lockMultiplier;
   }
-  
+
+  function getNeutroPrice() external view returns (uint256 price) {
+    return _getNEUTROPrice();
+  }
+
+  function getTokenPrice(address token) external view returns (uint256 price) {
+    return _getTokenPrice(token);
+  }
+
   // get reserveUSD, returns in decimals 18
   function getTotalValueOfLiquidity(address _lpToken) external view returns (uint256) {
     return _fetchTotalValueOfLiquidity(_lpToken);
   }
+  
+  function isValidLpToken(address _lpToken) external view returns (bool){
+    return _isValidLPToken(_lpToken);
+  }
+
+  // can be use to fetch LP token too
+  function _getTokenPrice(address token) internal view returns (uint256 price) {
+    if (!_isValidLPToken(token)) {
+      return _fetchPriceBasedOnRoutes(token);
+    } else {
+      uint256 one_unit = 10**18;
+      return _getLpTokenPrice(token, one_unit);
+    }
+  }
+  
+  function _getLpTokenPrice(address _lpToken, uint256 _lpTokenAmount) internal view returns (uint256) {
+    uint256 totalReserveUSD = _fetchTotalValueOfLiquidity(_lpToken);
+    uint256 lpSupply = IERC20(_lpToken).totalSupply();
+    return FullMath.mulDiv(totalReserveUSD, _lpTokenAmount, lpSupply);
+  }
 
   function _fetchTotalValueOfLiquidity(address lpToken) internal view returns (uint256 price) {
-    if (lpToken == address(xNeutro)) return _getNEUTROPrice();
-    if (!_isValidLPToken(lpToken)) return _fetchPriceBasedOnRoutes(lpToken);
-       
     address token0 = INeutroPair(lpToken).token0();
     address token1 = INeutroPair(lpToken).token1();
 
@@ -223,20 +275,21 @@ contract NeutroHelper is Ownable {
 
     uint256 _decimals0 = safeDecimals(token0);
     uint256 _decimals1 = safeDecimals(token1);
+    uint256 DECIMAL_18 = 10 ** 18;
 
-    uint256 reserve0Usd = FullMath.mulDiv(_fetchPriceBasedOnRoutes(token0), reserve0, (10**_decimals0));    
-    uint256 reserve1Usd = FullMath.mulDiv(_fetchPriceBasedOnRoutes(token1), reserve1, (10**_decimals1));    
+    // Normalize reserves to 18 decimals
+    uint256 normalizedReserve0 = reserve0 * 10**(18 - _decimals0);
+    uint256 normalizedReserve1 = reserve1 * 10**(18 - _decimals1);
+
+    // Fetch prices in 18 decimals
+    uint256 price0 = _fetchPriceBasedOnRoutes(token0);
+    uint256 price1 = _fetchPriceBasedOnRoutes(token1);
+
+    // Calculate USD value of reserves, assuming prices are in 18 decimals
+    uint256 reserve0Usd = FullMath.mulDiv(price0, normalizedReserve0, DECIMAL_18); 
+    uint256 reserve1Usd = FullMath.mulDiv(price1, normalizedReserve1, DECIMAL_18);
 
     return reserve0Usd + reserve1Usd;
-  }
-
-  // we need to make it to decimals 18 from 6 (comes from common USD token) for normalize the number
-  function getTokenPrice(address token) external view returns (uint256 price) {
-    return _fetchPriceBasedOnRoutes(token);
-  }
-
-  function getNeutroPrice() external view returns (uint256 price) {
-    return _getNEUTROPrice();
   }
 
   function _fetchPriceBasedOnRoutes(address token) internal view returns (uint256 price) {
@@ -279,7 +332,7 @@ contract NeutroHelper is Ownable {
     uint256 one_unit = 10**safeDecimals(token);
 
     if (token == stableTokens[0]) {
-      return one_unit;
+      return one_unit * TO_DECIMAL_18;
     }
 
     address[] memory _path = new address[](2);
