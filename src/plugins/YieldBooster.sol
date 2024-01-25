@@ -24,10 +24,10 @@ contract YieldBooster is Ownable, ReentrancyGuard, IXNeutroTokenUsage, IYieldBoo
 
   IXNeutroToken public immutable xNeutroToken; // XNeutroToken contract
 
-  uint256 public constant MAX_TOTAL_ALLOCATION_FLOOR = 1000 ether;
+  uint256 public constant MAX_TOTAL_ALLOCATION_FLOOR = 1_000_000_000 ether;
   // use to set a floor when calculating the multiplier on a pool
   // see _getMultiplier
-  uint256 public totalAllocationFloor = 100 ether;
+  uint256 public totalAllocationFloor = 100_000 ether;
 
   // User's boosted positions
   // userAddress => poolAddress => tokenIds[]
