@@ -29,18 +29,20 @@ included:
 - **YieldBooster:** Plugin to boost spNFTs' yield (staking positions on NFTPools).
 - **FairAuctionFactory:** Factory pattern for creating Fair Auction.
 - **NeutroHelper:** Serving FE datas.
+- **PositionHelper:** Helper for instantly create LP token and wrap it up to spNFT.
   > and more plugins to come 🥳 ..
 
 ### Testnet contracts
 
-- **xNEUTRO:** `0x96A064DB6CA1D45e59756D3DAc7CD249D4D742030` <br />
-- **NeutroMaster:** `0x9Ab3817b1c376166b2c52CA98805D3873f219905` <br />
-- **NFTPoolFactory:** `0x8105258c5edB1b0C6be6b70AD301E518eBC0651a` <br />
-- **NitroPoolFactory:** `0x5f4b3D92bcb944a0e9B231C42D0615F8A27Bbcc0` <br />
-- **Dividends:** `0xD442238e866C8Fd3EF1C83D5a3fCC3012C822046` <br />
-- **YieldBooster:** `0x11cD095C60534DD3983A3d83D691d148bEcEB89E` <br />
-- **FairAuctionFactory:** `0x72076068Bd08f5D0AE541075f1E317b3B1d46d8f` <br />
-- **NeutroHelper:** `0x826c1Bbf83ae7bA618c4874cE133F2a7029487Fd` <br />
+- **xNEUTRO:** `0xA3100a831B007A12ab0a3639C99C8b2C9765c4f9` <br />
+- **NeutroMaster:** `0x599b77c80DFA5D7E0C49Fa718308Fa4d9a0d8DE0` <br />
+- **NFTPoolFactory:** `0x47ad9f7A7Ca90dDA7B362a3e33CD31e7B74A167c` <br />
+- **NitroPoolFactory:** `0x6A45C6455067586F3C100714e9c6b03BBc65Ff71` <br />
+- **Dividends:** `0x749e4ab18F594092b690c9d4E961A7A1853D2DFe` <br />
+- **YieldBooster:** `0xF274E1f39f738EBa46B6acAe6D80EEF44b98d1E7` <br />
+- **FairAuctionFactory:** `0x2785110AB14d0429B02Bc048bA14F0905C3E2A9f` <br />
+- **NeutroHelper:** `0x135AabC332c43f7c1dF6e816d9b9d276420AECf6` <br />
+- **PositionHelper:** `0xDD26d7AF731aAA6A09587B716614F6aFE9D099B8` <br />
 
 ## 💻 Developer Guide
 
