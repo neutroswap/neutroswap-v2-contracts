@@ -46,16 +46,16 @@ included:
 
 ### Mainnet contracts
 
-- **xNEUTRO:** <br /> https://explorer.evm.eosnetwork.com/0xbd789E318EdE57233bc400970d165940D092fFF7 <br />
-- **NeutroMaster:** <br /> https://explorer.evm.eosnetwork.com/0xB6AF2e31f511C81ED7FECB0c998144B077e8b672 <br />
-- **NFTPoolFactory:** <br /> https://explorer.evm.eosnetwork.com/0x70890787A1cd8da4F5952B014836ac211e97A7a0 <br />
-- **NitroPoolFactory:** <br /> https://explorer.evm.eosnetwork.com/0xF69B9d1993B89E13aC87E07f6C1Ee2F07e151ae8 <br />
-- **Dividends:** <br /> https://explorer.evm.eosnetwork.com/0xBF44cD041da7fa1f7fc440CC581c45EE4f3c0185 <br />
-- **YieldBooster:** <br /> https://explorer.evm.eosnetwork.com/0x7DA41cA5A9fa6285313DEfE834AdfCEb0Aa56748 <br />
-- **Launchpad Receipt:** <br /> https://explorer.evm.eosnetwork.com/0x8c84e0B34F5db29Fb65d7bF9F3a56B835dC2d762 <br />
-- **FairAuctionFactory:** <br /> https://explorer.evm.eosnetwork.com/0xfb691036581355481f8E45d6FD707645F67a1E90 <br />
-- **NeutroHelper:** <br /> https://explorer.evm.eosnetwork.com/0x166BC646760b7F26B229665f89eC477fC76cb339 <br />
-- **PositionHelper:** <br /> https://explorer.evm.eosnetwork.com/0xD323e6E1EdD39B5276BE5313DD52D5523aFD7Bb4 <br />
+- **xNEUTRO:** <br /> https://explorer.evm.eosnetwork.com/address/0xbd789E318EdE57233bc400970d165940D092fFF7 <br />
+- **NeutroMaster:** <br /> https://explorer.evm.eosnetwork.com/address/0xB6AF2e31f511C81ED7FECB0c998144B077e8b672 <br />
+- **NFTPoolFactory:** <br /> https://explorer.evm.eosnetwork.com/address/0x70890787A1cd8da4F5952B014836ac211e97A7a0 <br />
+- **NitroPoolFactory:** <br /> https://explorer.evm.eosnetwork.com/address/0xF69B9d1993B89E13aC87E07f6C1Ee2F07e151ae8 <br />
+- **Dividends:** <br /> https://explorer.evm.eosnetwork.com/address/0xBF44cD041da7fa1f7fc440CC581c45EE4f3c0185 <br />
+- **YieldBooster:** <br /> https://explorer.evm.eosnetwork.com/address/0x7DA41cA5A9fa6285313DEfE834AdfCEb0Aa56748 <br />
+- **Launchpad Receipt:** <br /> https://explorer.evm.eosnetwork.com/address/0x8c84e0B34F5db29Fb65d7bF9F3a56B835dC2d762 <br />
+- **FairAuctionFactory:** <br /> https://explorer.evm.eosnetwork.com/address/0xfb691036581355481f8E45d6FD707645F67a1E90 <br />
+- **NeutroHelper:** <br /> https://explorer.evm.eosnetwork.com/address/0x166BC646760b7F26B229665f89eC477fC76cb339 <br />
+- **PositionHelper:** <br /> https://explorer.evm.eosnetwork.com/address/0xD323e6E1EdD39B5276BE5313DD52D5523aFD7Bb4 <br />
 
 ## 💻 Developer Guide
 
